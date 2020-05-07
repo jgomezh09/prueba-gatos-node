@@ -1,0 +1,35 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("./server/config/config");
+const server_1 = __importDefault(require("./server/classes/server"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const express_1 = __importDefault(require("express"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const routers_1 = __importDefault(require("./server/routers"));
+const cors_1 = __importDefault(require("cors"));
+// calase del servidor
+const server = server_1.default.instance;
+// BodyParser
+server.app.use(body_parser_1.default.urlencoded({ extended: true }));
+server.app.use(body_parser_1.default.json());
+// CORS
+server.app.use(cors_1.default({ origin: true, credentials: true }));
+// Carpeta publica
+server.app.use(express_1.default.static(__dirname + '/public'));
+//Rutas de los servicios
+server.app.use('/', routers_1.default);
+// Conexion Base de datos Mongo
+mongoose_1.default.connect(config_1.config.urlDB || '', {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useCreateIndex: true
+})
+    .then(() => console.log('DB gatos está conectada'))
+    .catch(() => console.error("Error"));
+// Iniciar servidor
+server.start(() => {
+    console.log(`Servidor corriendo en el puerto ${server.port}`);
+});
